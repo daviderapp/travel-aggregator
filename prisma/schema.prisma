@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Destination {
+  id            String          @id @default(cuid())
+  name          String          @unique
+  country       String
+  airportCode   String          @unique
+  imageUrl      String?
+  description   String?
+  flights       Flight[]
+  accommodations Accommodation[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@map("destinations")
+}
+
+model Flight {
+  id            String      @id @default(cuid())
+  airline       String
+  flightNumber  String
+  origin        String      // Codice aeroporto di partenza
+  destination   Destination @relation(fields: [destinationId], references: [id])
+  destinationId String
+  departureTime DateTime
+  arrivalTime   DateTime
+  duration      Int         // Durata in minuti
+  price         Float
+  availableSeats Int
+  aircraft      String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("flights")
+}
+
+model Accommodation {
+  id            String      @id @default(cuid())
+  name          String
+  type          AccommodationType
+  destination   Destination @relation(fields: [destinationId], references: [id])
+  destinationId String
+  address       String
+  rating        Float       // 1-5 stelle
+  pricePerNight Float
+  amenities     String[]    // Array di servizi (WiFi, Pool, etc.)
+  imageUrl      String?
+  description   String?
+  availableRooms Int
+  checkInTime   String      // "15:00"
+  checkOutTime  String      // "11:00"
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("accommodations")
+}
+
+enum AccommodationType {
+  HOTEL
+  HOSTEL
+  APARTMENT
+  BNB
+  RESORT
+  VILLA
+}
+
+model SearchHistory {
+  id            String   @id @default(cuid())
+  destination   String
+  checkIn       DateTime
+  checkOut      DateTime
+  guests        Int
+  budget        Float
+  preferences   Json     // Memorizza le preferenze utente
+  resultsCount  Int
+  createdAt     DateTime @default(now())
+
+  @@map("search_history")
+}

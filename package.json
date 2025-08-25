@@ -1,27 +1,66 @@
 {
   "name": "travel-aggregator",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "MVP Travel Package Aggregator - Combines flights and accommodations with intelligent scoring",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build", 
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma migrate reset --force && npm run db:seed",
+    "setup": "chmod +x scripts/setup.sh && ./scripts/setup.sh",
+    "deploy": "chmod +x scripts/deploy.sh && ./scripts/deploy.sh",
+    "test:scoring": "tsx tests/scoring.test.ts"
   },
   "dependencies": {
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "next": "15.5.0"
+    "next": "14.2.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "typescript": "^5",
+    "@prisma/client": "^5.19.0",
+    "prisma": "^5.19.0",
+    "lucide-react": "^0.263.1",
+    "date-fns": "^2.30.0",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.0.0"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "15.5.0",
-    "@eslint/eslintrc": "^3"
-  }
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.0",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0",
+    "tsx": "^4.0.0"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TUO_USERNAME/travel-aggregator.git"
+  },
+  "keywords": [
+    "travel",
+    "aggregator", 
+    "nextjs",
+    "typescript",
+    "prisma",
+    "postgresql",
+    "flight-booking",
+    "hotel-booking"
+  ],
+  "author": "Il Tuo Nome",
+  "license": "MIT"
 }
