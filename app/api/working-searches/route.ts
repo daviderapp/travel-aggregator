@@ -47,7 +47,7 @@ export async function GET() {
         continue
       }
 
-      // Calcola range di prezzi realistici
+      // Calcola range di prezzi realistici...
       const minFlightPrice = Math.min(...sampleFlights.map(f => f.price))
       const maxFlightPrice = Math.max(...sampleFlights.map(f => f.price))
       const minAccommodationPrice = Math.min(...sampleAccommodations.map(a => a.pricePerNight))
