@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, MapPin, Calendar, Users, Euro } from 'lucide-react'
 import { SearchFormData, UserPreferences, AccommodationType } from '@/lib/types'
+import SearchModeToggle from './SearchModeToggle'
+import AISearchForm from './AISearchForm'
 
 const destinations = [
   { value: 'parigi', label: 'Parigi, Francia' },
@@ -28,6 +30,7 @@ const amenities = [
 
 export default function SearchForm() {
   const router = useRouter()
+  const [searchMode, setSearchMode] = useState<'classic' | 'ai'>('classic')
   const [isLoading, setIsLoading] = useState(false)
   
   const [formData, setFormData] = useState<SearchFormData>({
@@ -44,12 +47,13 @@ export default function SearchForm() {
     }
   })
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleClassicSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     
     // Costruisci URL con parametri di ricerca
     const searchParams = new URLSearchParams({
+      mode: 'classic',
       destination: formData.destination,
       checkIn: formData.checkIn.toISOString().split('T')[0],
       checkOut: formData.checkOut.toISOString().split('T')[0],
@@ -73,217 +77,228 @@ export default function SearchForm() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-xl shadow-lg p-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-          Trova il tuo pacchetto viaggio perfetto
-        </h2>
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Destinazione */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <MapPin className="inline w-4 h-4 mr-1" />
-                Destinazione
-              </label>
-              <select
-                value={formData.destination}
-                onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              >
-                <option value="">Seleziona destinazione...</option>
-                {destinations.map(dest => (
-                  <option key={dest.value} value={dest.value}>
-                    {dest.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Ospiti */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Users className="inline w-4 h-4 mr-1" />
-                Ospiti
-              </label>
-              <select
-                value={formData.guests}
-                onChange={(e) => setFormData(prev => ({ ...prev, guests: Number(e.target.value) }))}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                {[1,2,3,4,5,6,7,8].map(num => (
-                  <option key={num} value={num}>{num} {num === 1 ? 'persona' : 'persone'}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Date */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Calendar className="inline w-4 h-4 mr-1" />
-                Check-in
-              </label>
-              <input
-                type="date"
-                value={formData.checkIn.toISOString().split('T')[0]}
-                onChange={(e) => setFormData(prev => ({ ...prev, checkIn: new Date(e.target.value) }))}
-                min={new Date().toISOString().split('T')[0]}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Calendar className="inline w-4 h-4 mr-1" />
-                Check-out
-              </label>
-              <input
-                type="date"
-                value={formData.checkOut.toISOString().split('T')[0]}
-                onChange={(e) => setFormData(prev => ({ ...prev, checkOut: new Date(e.target.value) }))}
-                min={formData.checkIn.toISOString().split('T')[0]}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Budget */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Euro className="inline w-4 h-4 mr-1" />
-              Budget massimo: €{formData.budget}
-            </label>
-            <input
-              type="range"
-              min="200"
-              max="2000"
-              step="50"
-              value={formData.budget}
-              onChange={(e) => setFormData(prev => ({ ...prev, budget: Number(e.target.value) }))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-            />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>€200</span>
-              <span>€2000</span>
-            </div>
-          </div>
-
-          {/* Preferenze */}
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Preferenze</h3>
-            
+      {/* Toggle per modalità di ricerca */}
+      <SearchModeToggle 
+        mode={searchMode} 
+        onModeChange={setSearchMode} 
+      />
+      
+      {/* Renderizza il form appropriato basato sulla modalità */}
+      {searchMode === 'ai' ? (
+        <AISearchForm />
+      ) : (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 transition-colors duration-300">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+            Configura il tuo viaggio
+          </h2>
+          
+          <form onSubmit={handleClassicSubmit} className="space-y-6">
+            {/* Destinazione */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Tipo Alloggio */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tipo di alloggio
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <MapPin className="inline w-4 h-4 mr-1" />
+                  Destinazione
                 </label>
-                <div className="space-y-2">
-                  {accommodationTypes.map(type => (
-                    <label key={type.value} className="flex items-center">
+                <select
+                  value={formData.destination}
+                  onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
+                  required
+                >
+                  <option value="">Seleziona destinazione...</option>
+                  {destinations.map(dest => (
+                    <option key={dest.value} value={dest.value}>
+                      {dest.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Ospiti */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <Users className="inline w-4 h-4 mr-1" />
+                  Ospiti
+                </label>
+                <select
+                  value={formData.guests}
+                  onChange={(e) => setFormData(prev => ({ ...prev, guests: Number(e.target.value) }))}
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
+                >
+                  {[1,2,3,4,5,6,7,8].map(num => (
+                    <option key={num} value={num}>{num} {num === 1 ? 'persona' : 'persone'}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Date */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <Calendar className="inline w-4 h-4 mr-1" />
+                  Check-in
+                </label>
+                <input
+                  type="date"
+                  value={formData.checkIn.toISOString().split('T')[0]}
+                  onChange={(e) => setFormData(prev => ({ ...prev, checkIn: new Date(e.target.value) }))}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <Calendar className="inline w-4 h-4 mr-1" />
+                  Check-out
+                </label>
+                <input
+                  type="date"
+                  value={formData.checkOut.toISOString().split('T')[0]}
+                  onChange={(e) => setFormData(prev => ({ ...prev, checkOut: new Date(e.target.value) }))}
+                  min={formData.checkIn.toISOString().split('T')[0]}
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Budget */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <Euro className="inline w-4 h-4 mr-1" />
+                Budget massimo: €{formData.budget}
+              </label>
+              <input
+                type="range"
+                min="200"
+                max="2000"
+                step="50"
+                value={formData.budget}
+                onChange={(e) => setFormData(prev => ({ ...prev, budget: Number(e.target.value) }))}
+                className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+              />
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <span>€200</span>
+                <span>€2000</span>
+              </div>
+            </div>
+
+            {/* Preferenze */}
+            <div className="border-t dark:border-gray-600 pt-6">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Preferenze</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Tipo Alloggio */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Tipo di alloggio
+                  </label>
+                  <div className="space-y-2">
+                    {accommodationTypes.map(type => (
+                      <label key={type.value} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={formData.preferences.accommodationType.includes(type.value as AccommodationType)}
+                          onChange={(e) => {
+                            const current = formData.preferences.accommodationType
+                            const updated = e.target.checked
+                              ? [...current, type.value as AccommodationType]
+                              : current.filter(t => t !== type.value)
+                            updatePreferences('accommodationType', updated)
+                          }}
+                          className="mr-2 rounded"
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">{type.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Fascia Prezzo */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Fascia di prezzo
+                  </label>
+                  <select
+                    value={formData.preferences.priceRange}
+                    onChange={(e) => updatePreferences('priceRange', e.target.value)}
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
+                  >
+                    <option value="budget">Budget (Economico)</option>
+                    <option value="mid">Medio</option>
+                    <option value="luxury">Lusso</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Servizi */}
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Servizi desiderati
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {amenities.map(amenity => (
+                    <label key={amenity} className="flex items-center">
                       <input
                         type="checkbox"
-                        checked={formData.preferences.accommodationType.includes(type.value as AccommodationType)}
+                        checked={formData.preferences.amenities.includes(amenity)}
                         onChange={(e) => {
-                          const current = formData.preferences.accommodationType
+                          const current = formData.preferences.amenities
                           const updated = e.target.checked
-                            ? [...current, type.value as AccommodationType]
-                            : current.filter(t => t !== type.value)
-                          updatePreferences('accommodationType', updated)
+                            ? [...current, amenity]
+                            : current.filter(a => a !== amenity)
+                          updatePreferences('amenities', updated)
                         }}
                         className="mr-2 rounded"
                       />
-                      <span className="text-sm">{type.label}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{amenity}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              {/* Fascia Prezzo */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Fascia di prezzo
+              {/* Preferenza Volo */}
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Preferenza volo
                 </label>
                 <select
-                  value={formData.preferences.priceRange}
-                  onChange={(e) => updatePreferences('priceRange', e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={formData.preferences.flightPreference}
+                  onChange={(e) => updatePreferences('flightPreference', e.target.value)}
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
                 >
-                  <option value="budget">Budget (Economico)</option>
-                  <option value="mid">Medio</option>
-                  <option value="luxury">Lusso</option>
+                  <option value="cheapest">Più economico</option>
+                  <option value="shortest">Più breve</option>
+                  <option value="best_time">Orari migliori</option>
                 </select>
               </div>
             </div>
 
-            {/* Servizi */}
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Servizi desiderati
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {amenities.map(amenity => (
-                  <label key={amenity} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={formData.preferences.amenities.includes(amenity)}
-                      onChange={(e) => {
-                        const current = formData.preferences.amenities
-                        const updated = e.target.checked
-                          ? [...current, amenity]
-                          : current.filter(a => a !== amenity)
-                        updatePreferences('amenities', updated)
-                      }}
-                      className="mr-2 rounded"
-                    />
-                    <span className="text-sm">{amenity}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Preferenza Volo */}
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Preferenza volo
-              </label>
-              <select
-                value={formData.preferences.flightPreference}
-                onChange={(e) => updatePreferences('flightPreference', e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="cheapest">Più economico</option>
-                <option value="shortest">Più breve</option>
-                <option value="best_time">Orari migliori</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading || !formData.destination}
-            className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
-          >
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Ricerca in corso...
-              </>
-            ) : (
-              <>
-                <Search className="w-4 h-4 mr-2" />
-                Cerca Pacchetti
-              </>
-            )}
-          </button>
-        </form>
-      </div>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading || !formData.destination}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4 px-6 rounded-lg font-medium transition-colors flex items-center justify-center"
+            >
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Ricerca in corso...
+                </>
+              ) : (
+                <>
+                  <Search className="w-4 h-4 mr-2" />
+                  Cerca Pacchetti
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   )
 }

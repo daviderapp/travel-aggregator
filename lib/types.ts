@@ -63,13 +63,15 @@ export interface SearchResponse {
   total: number
   searchTime: number
   filters: SearchFilters
+  mode?: 'classic' | 'ai'        // NUOVO: modalità di ricerca
+  originalQuery?: string          // NUOVO: query AI originale
 }
 
 export interface SearchFilters {
   priceRange: { min: number; max: number }
   ratings: number[]
   airlines: string[]
-  accommodationTypes: AccommodationType[]
+  accommodationTypes: AccommodationType[]  // Mantieni il tipo Prisma corretto
 }
 
 // Utility types
@@ -88,4 +90,19 @@ export interface ScoringWeights {
   amenities: number
   flightTime: number
   location: number
+}
+
+// NUOVI TIPI per supporto AI
+export interface SearchHistory {
+  id: string
+  destination: string
+  checkIn: Date
+  checkOut: Date
+  guests: number
+  budget: number
+  preferences: UserPreferences
+  resultsCount: number
+  searchMode: 'classic' | 'ai'
+  originalQuery?: string
+  createdAt: Date
 }

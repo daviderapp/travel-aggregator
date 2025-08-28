@@ -92,21 +92,40 @@ export function formatDuration(minutes: number): string {
   return `${hours}h ${mins}m`
 }
 
-export function formatDate(date: Date): string {
+export function formatDate(date: Date | string | null | undefined): string {
+  if (!date) return '--/--/----'
+  
+  const dateObj = date instanceof Date ? date : new Date(date)
+  
+  if (isNaN(dateObj.getTime())) {
+    console.error('Invalid date passed to formatDate:', date)
+    return '--/--/----'
+  }
+  
   return new Intl.DateTimeFormat('it-IT', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'
-  }).format(date)
+  }).format(dateObj)
 }
 
-export function formatTime(date: Date): string {
+export function formatTime(date: Date | string | null | undefined): string {
+  // Controllo di validità
+  if (!date) return '--:--'
+  
+  const dateObj = date instanceof Date ? date : new Date(date)
+  
+  // Verifica se la data è valida
+  if (isNaN(dateObj.getTime())) {
+    console.error('Invalid date passed to formatTime:', date)
+    return '--:--'
+  }
+  
   return new Intl.DateTimeFormat('it-IT', {
     hour: '2-digit',
     minute: '2-digit'
-  }).format(date)
+  }).format(dateObj)
 }
-
 // Validazione date
 export function isValidDateRange(checkIn: Date, checkOut: Date): boolean {
   const today = new Date()
