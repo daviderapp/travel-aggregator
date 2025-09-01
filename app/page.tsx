@@ -1,7 +1,6 @@
 'use client'
 import SearchForm from './components/SearchForm'
 import { Plane, MapPin, Star, TrendingUp } from 'lucide-react'
-import DarkModeToggle from './components/DarkModeToggle'
 
 export default function HomePage() {
   return (
@@ -28,9 +27,6 @@ export default function HomePage() {
                   Contatti
                 </a>
               </nav>
-              
-              {/* Dark Mode Toggle */}
-              <DarkModeToggle />
             </div>
           </div>
         </div>
