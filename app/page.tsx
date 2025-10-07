@@ -29,8 +29,6 @@ export default function HomePage() {
                 </a>
               </nav>
               
-              {/* Dark Mode Toggle */}
-              <DarkModeToggle />
             </div>
           </div>
         </div>
