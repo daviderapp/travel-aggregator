@@ -136,11 +136,11 @@ Respond ONLY with JSON, no other text.`
     })
   })
 
-  console.log("messaggi inviati a HF:", messages); // <— log
+  console.log("messaggi inviati a HF:", messages); 
 
   if (!response.ok) {
     const txt = await response.text().catch(() => '');
-    console.error('HF non OK', response.status, txt); // <— log
+    console.error('HF non OK', response.status, txt); 
     throw new Error('Errore nel servizio AI')
   }
 
@@ -279,7 +279,7 @@ export async function GET(request: NextRequest) {
         )
       }
     } else {
-      // Gestione ricerca classica (codice esistente)
+      // Gestione ricerca classica
       destination = searchParams.get('destination')
       checkIn = searchParams.get('checkIn')
       checkOut = searchParams.get('checkOut')
@@ -316,7 +316,7 @@ export async function GET(request: NextRequest) {
     const checkOutDate = new Date(checkOut)
     const nights = calculateNights(checkInDate, checkOutDate)
 
-    // Query database per destinazione (resto del codice invariato)
+    // Query database per destinazione
     const destinationData = await prisma.destination.findFirst({
       where: {
         name: {
@@ -455,8 +455,8 @@ export async function GET(request: NextRequest) {
         budget,
         preferences: preferences as any,
         resultsCount: topPackages.length,
-        // searchMode: mode,              // Commenta fino alla migrazione
-        // originalQuery: originalQuery   // Commenta fino alla migrazione
+        searchMode: mode,             
+        originalQuery: originalQuery  
       }
     })
 

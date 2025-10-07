@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: 'TravelAggregator - Pacchetti Viaggio Personalizzati',
   description: 'Trova il pacchetto viaggio perfetto combinando voli e alloggi. Confronta prezzi, recensioni e servizi per le migliori destinazioni europee.',
   keywords: 'viaggi, pacchetti viaggio, voli, hotel, vacanze, europa, aggregatore',
-  authors: [{ name: 'TravelAggregator Team' }],
+  authors: [{ name: 'Davide Rapp' }],
   openGraph: {
     title: 'TravelAggregator - Pacchetti Viaggio Personalizzati',
     description: 'Trova il pacchetto viaggio perfetto combinando voli e alloggi.',
